@@ -7,12 +7,10 @@
 #include "serial/serial.h"
 #include <sensor_msgs/LaserScan.h>
 
-
 #define REPLY_SIZE 20
 #define TIMEOUT 35
 
-const unsigned int sensor_frequency = 60; /*sensor frequency in hz*/
-
+const unsigned int sensor_frequency = 1;
 std::string serial_port;
 
 using std::string;
@@ -38,6 +36,22 @@ void print_usage()
 {
 	cerr << "Usage: test_serial {-e|<serial port address>} ";
     cerr << "<baudrate> [test string]" << endl;
+}
+
+// Function to split the string, coz this is fucking cpp
+vector<string> &split(const string &s, char delim, vector<string> &elems) {
+    std::stringstream ss(s);
+    string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+vector<string> split(const string &s, char delim) {
+    vector<string> elems;
+    split(s, delim, elems);
+    return elems;
 }
 
 int main(int argc, char** argv) {
@@ -77,9 +91,9 @@ int main(int argc, char** argv) {
 	
 	cout << "Is the serial port open?";
 	if(my_serial.isOpen())
-	cout << " Yes." << endl;
+		cout << " Yes." << endl;
 	else
-	cout << " No." << endl;
+		cout << " No." << endl;
 
 	// Get the Test string
 	int count = 0;
@@ -95,22 +109,33 @@ int main(int argc, char** argv) {
 
 	while(ros::ok()) {
 		
-	    size_t bytes_wrote = my_serial.write(test_string);
-	    string result = my_serial.read(test_string.length()+1000);
+		//.For MMI mode, we need the <CR><LF> regex
+		// Use teststring = "?TM,360,0" for a laser scanner response map, delimited by commas.
+	    size_t bytes_wrote = my_serial.write(test_string + "\r\n");
+
+	    // For HMI mode, well thug life
+	    // size_t bytes_wrote = my_serial.write(test_string);
+
+	    string response_string = my_serial.read(test_string.length()+10000);
+	    // TODO maybe the above should be a stream, why to save in a string? Is there a way
+	    // to parse and dump into laser_scan_msg on the fly?
 
 	    //	count is bakar
     	cout << "Iteration: " << count << ", Bytes written: ";
     	cout << bytes_wrote << ", Bytes read: ";
-    	cout << result.length() << ", String read: " << result << endl;
+    	cout << response_string.length() << ", String read: " << response_string << endl;
 	    count += 1;
 
 	    // TODO catch the error
 
 		// parse the response from the lidar to make a laser scan message with angles and 
 		// corresponding distances
+	    vector<string> parsed_string_vector = split(response_string, ',');
+	    cout << "parsed_string.length()" << parsed_string_vector.size() << endl;
+	    cout << "parsed_string[0]" << parsed_string_vector[0] << endl; 
 
-		laser_scan_msg.header.frame_id="sf40_frame";
-		laser_scan_msg.header.stamp=ros::Time::now();
+		laser_scan_msg.header.frame_id = "sf40_frame";
+		laser_scan_msg.header.stamp = ros::Time::now();
 		
 		laser_publisher.publish(laser_scan_msg);
 
