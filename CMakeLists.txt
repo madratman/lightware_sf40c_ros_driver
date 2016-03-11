@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(lightware_sf40_ros)
 
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}") # use cpp11
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs

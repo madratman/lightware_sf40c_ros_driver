@@ -116,7 +116,9 @@ int main(int argc, char** argv) {
 	    // For HMI mode, well thug life
 	    // size_t bytes_wrote = my_serial.write(test_string);
 
-	    string response_string = my_serial.read(test_string.length()+10000);
+	    string response_string = my_serial.read(test_string.length()+20000); 
+	    // TODO should I care about the exact size of response_string, it returns 1657 readings. 
+	    // TODO MMI doesn't tell the angle, although it should be 0.22 deg of resolution, slightly varies in 0.21-0.23 sometimes
 	    // TODO maybe the above should be a stream, why to save in a string? Is there a way
 	    // to parse and dump into laser_scan_msg on the fly?
 
@@ -130,13 +132,24 @@ int main(int argc, char** argv) {
 
 		// parse the response from the lidar to make a laser scan message with angles and 
 		// corresponding distances
-	    vector<string> parsed_string_vector = split(response_string, ',');
-	    cout << "parsed_string.length()" << parsed_string_vector.size() << endl;
-	    cout << "parsed_string[0]" << parsed_string_vector[0] << endl; 
-
-		laser_scan_msg.header.frame_id = "sf40_frame";
+	    vector<string> laser_distances_string = split(response_string, ',');
+	    cout << "parsed_string.length()" << laser_distances_string.size() << endl;
+	    cout << "parsed_string[0]" << laser_distances_string[0] << endl; 
+	    vector<float> laser_distances_float(laser_distances_string.size());
+	    std::transform(laser_distances_string.begin(), laser_distances_string.end(), laser_distances_float.begin(), 
+							[](const std::string &arg) { return std::stof(arg); }); 
 		laser_scan_msg.header.stamp = ros::Time::now();
-		
+		// laser_scan_msg.header.frame_id = "sf40_frame"; // TODO there's no frame in laserscan msg huh?
+		laser_scan_msg.angle_min = 0.0;
+		laser_scan_msg.angle_max = 360.0;
+		laser_scan_msg.angle_increment = 360.0/1657; //TODO check this
+		laser_scan_msg.time_increment = 1.0; // TODO time between measurements [seconds] - if your scanner is moving, this will be used in interpolating position of 3d points
+		laser_scan_msg.scan_time = 1.0; // TODO time between scans [seconds]
+		laser_scan_msg.range_min = 0.0;
+		laser_scan_msg.range_max = 100.0; //TODO check
+		laser_scan_msg.ranges = laser_distances_float; //TODO allocate might cause segfault
+		//laser_scan_msg.intensities; //intensity data [device-specific units].  If your device does not provide intensities, please leave the array empty.
+
 		laser_publisher.publish(laser_scan_msg);
 
 		// RIP, dear loop
