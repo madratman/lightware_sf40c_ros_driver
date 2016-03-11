@@ -145,10 +145,10 @@ int main(int argc, char** argv) {
 		laser_scan_msg.header.stamp = ros::Time::now();
 		laser_scan_msg.header.frame_id = "map";
 		laser_scan_msg.angle_min = 0.0;
-		laser_scan_msg.angle_max = 360.0;
-		laser_scan_msg.angle_increment = 360.0/1654; //TODO check this
+		laser_scan_msg.angle_max = 2*M_PI;
+		laser_scan_msg.angle_increment = 2*M_PI/1654; //TODO check this
 		laser_scan_msg.time_increment = 1.0; // TODO time between measurements [seconds] - if your scanner is moving, this will be used in interpolating position of 3d points
-		laser_scan_msg.scan_time = 1.0; // TODO time between scans [seconds]
+		laser_scan_msg.scan_time = 1.0/36000; // TODO time between scans [seconds]
 		laser_scan_msg.range_min = 0.0;
 		laser_scan_msg.range_max = 100.0; //TODO check
 		laser_scan_msg.ranges = laser_distances_float; //TODO allocate might cause segfault
