@@ -24,11 +24,6 @@ include_directories(
 )
 
 add_executable(sf40_node src/sf40_node.cpp)
-add_executable(farzi_node src/farzi_node.cpp)
-# add_dependencies(sf40_node)
 target_link_libraries(sf40_node 
- ${catkin_LIBRARIES} ${modular_lib_pkg_LIBRARIES} ${serial_LIBRARIES}
-)
-target_link_libraries(farzi_node 
  ${catkin_LIBRARIES} ${modular_lib_pkg_LIBRARIES} ${serial_LIBRARIES}
 )

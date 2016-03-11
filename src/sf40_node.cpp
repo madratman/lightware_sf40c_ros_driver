@@ -122,7 +122,6 @@ int main(int argc, char** argv) {
 	    // TODO maybe the above should be a stream, why to save in a string? Is there a way
 	    // to parse and dump into laser_scan_msg on the fly?
 
-	    //	count is bakar
     	cout << "Iteration: " << count << ", Bytes written: ";
     	cout << bytes_wrote << ", Bytes read: ";
     	cout << response_string.length() << ", String read: " << response_string << endl;
@@ -157,7 +156,6 @@ int main(int argc, char** argv) {
 
 		laser_publisher.publish(laser_scan_msg);
 
-		// RIP, dear loop
 		loop_rate.sleep(); 
 	}
 	
