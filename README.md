@@ -2,7 +2,7 @@
 ROS driver for [Lightware SF-40/C](http://www.lightware.co.za/shop/en/products/45-sf40c-100-m.html). (Official doc of the scanner is in the link in the "Download" tab)
 
 ### Set up ###
-First please ensure you're in MMI mode via Minicom.
+First please ensure you're in MMI mode via Minicom. `Esc` switches b/w HMI and MMI modes
 
 ```
 catkin_make
@@ -30,4 +30,4 @@ Note here `\r\n` is basically the CRLF suffix for MMI mode, for HMI commands jus
 This wrapper depends on [serial library](https://github.com/wjwwood/serial) by William Woodall
 
 ### What project generated this code ###
-Power line inspection 
+Power line inspection
