@@ -16,7 +16,7 @@ Now, "argument" is any MMI command mentioned in the Lightware doc(linked above).
 
 In rviz, change frame name to "map", and listen to the `laser_scan` topic. The laser scan should show up.
 
-The time stamp of message is fake, it just uses a `ros::Time::now()`. Syncing with the encoder is a TODO at the time of writing
+The time stamp of message is fake, it just uses a `ros::Time::now()`. ~~Syncing with the encoder is a TODO at the time of writing~~ clock sync/slaving the laser to a cam isn't possible
 
 ### How to change spinning rate, other stuff mentioned in the Lightware doc and debug, etc ###
 Yeah, so it's not a complete driver in that sense. I just use [minicom](http://linux.die.net/man/1/minicom) to change these things. `Esc` in minicom will switch b/w MMI and HMI modes. 
