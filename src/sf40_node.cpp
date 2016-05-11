@@ -1,3 +1,9 @@
+/*
+* Copyright (c) 2016 Carnegie Mellon University, Author <ratneshm@andrew.cmu.edu>
+*
+* For License information please see the LICENSE file in the root directory.
+*
+*/
 #include <ros/ros.h>
 #include <string>
 #include <iostream>
