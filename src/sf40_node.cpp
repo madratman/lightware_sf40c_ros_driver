@@ -4,11 +4,11 @@
 * For License information please see the LICENSE file in the root directory.
 *
 */
+
 #include <ros/ros.h>
 #include <string>
 #include <iostream>
 #include <cstdio>
-
 #include <std_msgs/String.h>
 #include "serial/serial.h"
 #include <sensor_msgs/LaserScan.h>
@@ -34,33 +34,37 @@ void enumerate_ports()
 	{
 		serial::PortInfo device = *iter++;
 		printf( "(%s, %s, %s)\n", device.port.c_str(), device.description.c_str(),
-	     device.hardware_id.c_str() );
+		device.hardware_id.c_str() );
 	}
 }
 
 void print_usage()
 {
 	cerr << "Usage: test_serial {-e|<serial port address>} ";
-    cerr << "<baudrate> [test string]" << endl;
+	cerr << "<baudrate> [test string]" << endl;
 }
 
 // Function to split the string, coz this is fucking cpp
-vector<string> &split(const string &s, char delim, vector<string> &elems) {
-    std::stringstream ss(s);
-    string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
+vector<string> &split(const string &s, char delim, vector<string> &elems) 
+{
+	std::stringstream ss(s);
+	string item;
+	while (std::getline(ss, item, delim)) 
+	{
+		elems.push_back(item);
+	}
+	return elems;
 }
 
-vector<string> split(const string &s, char delim) {
-    vector<string> elems;
-    split(s, delim, elems);
-    return elems;
+vector<string> split(const string &s, char delim)
+{
+	vector<string> elems;
+	split(s, delim, elems);
+	return elems;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) 
+{
 	ros::init(argc, argv, "sf40_node");
 	ros::NodeHandle nh;
 	ros::Publisher laser_publisher = nh.advertise<sensor_msgs::LaserScan>("laser_scan", 5);
@@ -87,12 +91,12 @@ int main(int argc, char** argv) {
 	sscanf(argv[2], "%lu", &baud);
 	#endif
 
-  	serial::Serial my_serial(port, baud, serial::Timeout::simpleTimeout(1000));
+	serial::Serial my_serial(port, baud, serial::Timeout::simpleTimeout(1000));
 	char reply[REPLY_SIZE];
 	
 	sensor_msgs::LaserScan laser_scan_msg;
 
-    //setting default device path for the sensor
+	//setting default device path for the sensor
 	nh.param("serial_port", serial_port, std::string("/dev/ttyUSB0"));
 	
 	cout << "Is the serial port open?";
@@ -113,40 +117,41 @@ int main(int argc, char** argv) {
 		test_string = "Testing.";
 	}
 
-	while(ros::ok()) {
+	while(ros::ok()) 
+	{
 		
 		//.For MMI mode, we need the <CR><LF> regex
 		// Use teststring = "?TM,360,0" for a laser scanner response map, delimited by commas.
-	    size_t bytes_wrote = my_serial.write(test_string + "\r\n");
+		size_t bytes_wrote = my_serial.write(test_string + "\r\n");
 
-	    // For HMI mode, well thug life
-	    // size_t bytes_wrote = my_serial.write(test_string);
+		// For HMI mode, well thug life
+		// size_t bytes_wrote = my_serial.write(test_string);
 
-	    string response_string = my_serial.read(test_string.length()+20000); 
-	    // TODO should I care about the exact size of response_string, it returns 1657 readings. 
-	    // TODO MMI doesn't tell the angle, although it should be 0.22 deg of resolution, slightly varies in 0.21-0.23 sometimes
-	    // TODO maybe the above should be a stream, why to save in a string? Is there a way
-	    // to parse and dump into laser_scan_msg on the fly?
+		string response_string = my_serial.read(test_string.length()+20000); 
+		// TODO should I care about the exact size of response_string, it returns 1657 readings. 
+		// TODO MMI doesn't tell the angle, although it should be 0.22 deg of resolution, slightly varies in 0.21-0.23 sometimes
+		// TODO maybe the above should be a stream, why to save in a string? Is there a way
+		// to parse and dump into laser_scan_msg on the fly?
 
-    	cout << "Iteration: " << count << ", Bytes written: ";
-    	cout << bytes_wrote << ", Bytes read: ";
-    	cout << response_string.length() << ", String read: " << response_string << endl;
-	    count += 1;
+		cout << "Iteration: " << count << ", Bytes written: ";
+		cout << bytes_wrote << ", Bytes read: ";
+		cout << response_string.length() << ", String read: " << response_string << endl;
+		count += 1;
 
-	    // TODO catch the error
+		// TODO catch the error
 
 		// parse the response from the lidar to make a laser scan message with angles and corresponding distances
-	    vector<string> laser_distances_string = split(response_string, ',');
+		vector<string> laser_distances_string = split(response_string, ',');
 
-	    // Delete the first three elements from response vector as they are not distances. 
-	    for (int i=0; i<3; i++)
-	    {
-	    	laser_distances_string.erase(laser_distances_string.begin());
-	    }
+		// Delete the first three elements from response vector as they are not distances. 
+		for (int i=0; i<3; i++)
+		{
+			laser_distances_string.erase(laser_distances_string.begin());
+		}
 
-	    // cout << "laser_distances_string.length()" << laser_distances_string.size() << endl;
-	    vector<float> laser_distances_float(laser_distances_string.size());
-	    std::transform(laser_distances_string.begin(), laser_distances_string.end(), laser_distances_float.begin(), 
+		// cout << "laser_distances_string.length()" << laser_distances_string.size() << endl;
+		vector<float> laser_distances_float(laser_distances_string.size());
+		std::transform(laser_distances_string.begin(), laser_distances_string.end(), laser_distances_float.begin(), 
 							[](const std::string &arg) { return std::stof(arg); }); 
 		laser_scan_msg.header.stamp = ros::Time::now();
 		laser_scan_msg.header.frame_id = "map";
