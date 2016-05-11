@@ -28,6 +28,3 @@ Note here `\r\n` is basically the CRLF suffix for MMI mode, for HMI commands jus
 
 ### Info ###
 This wrapper depends on [serial library](https://github.com/wjwwood/serial) by William Woodall
-
-### What project generated this code ###
-Power line inspection
