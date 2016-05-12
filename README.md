@@ -6,12 +6,13 @@ First please ensure you're in MMI mode via Minicom. `Esc` switches b/w HMI and M
 
 ```
 catkin_make
-rosrun lightware_sf40_ros sf40_node "argument"
+rosrun lightware_sf40_ros sf40_node <device-name> <baud-rate> "argument"
 rosrun rviz rviz
 ```
+<device-name> is the name of the device e.g. /dev/ttyUSB0 and <baud-rate> is the baud rate e.g. 115200
 Now, "argument" is any MMI command mentioned in the Lightware doc(linked above). If you want a map spanning 360 degrees, with 0 degrees as the forward direction, the most common use case, then "argument" is ?TM,360,0
 
-`rosrun lightware_sf_40_ros sf40_node ?TM,360,0`
+`rosrun lightware_sf_40_ros sf40_node /dev/ttyUSB0 115200 ?TM,360,0`
 
 
 In rviz, change frame name to "map", and listen to the `laser_scan` topic. The laser scan should show up.
